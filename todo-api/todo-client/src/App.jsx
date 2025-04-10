@@ -4,10 +4,23 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import PrivateRoute from "./components/PrivateRoute";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   return (
-    <Router>
+
+
+// Dans ton composant App :
+<>
+<Toaster
+  position="top-right"
+  toastOptions={{
+    duration: 5000,
+  }}
+/>
+
+
+  <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -21,6 +34,9 @@ function App() {
         <Route path="*" element={<Login />} />
       </Routes>
     </Router>
+</>
+
+
   );
 }
 

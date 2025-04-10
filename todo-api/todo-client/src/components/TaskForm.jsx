@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api from "../services/api";
+import { toast } from "react-hot-toast";
 
 const TaskForm = ({ onTaskAdded }) => {
   const [title, setTitle] = useState("");
@@ -7,30 +8,42 @@ const TaskForm = ({ onTaskAdded }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title.trim()) return;
-    await api.post("/tasks", { title,description });
-    setTitle("");
-    setDescription("");
-    onTaskAdded(); // Rafraîchir la liste des tâches
+    if (!title.trim()) {
+      toast.error("Le titre est requis");
+      return;
+    }
+
+    try {
+      await api.post("/tasks", { title, description });
+      toast.success("Tâche ajoutée avec succès 🎉");
+      setTitle("");
+      setDescription("");
+      onTaskAdded(); // Rafraîchir la liste
+    } catch (err) {
+      toast.error("Erreur lors de l'ajout de la tâche");
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mb-4 max-w-xl mx-auto">
+    <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow">
+      <h2 className="text-lg font-bold mb-2">Nouvelle tâche</h2>
       <input
         type="text"
-        placeholder="Titre de la tâche"
-        className="p-2 border rounded w-72"
+        placeholder="Titre"
+        className="w-full p-2 border rounded mb-2"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
-      <input
-        type="text"
-        placeholder="Description de la tache"
-        className="p-2 border rounded w-72"
+      <textarea
+        placeholder="Description"
+        className="w-full p-2 border rounded mb-2"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
-      <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded flex-1">
+      <button
+        type="submit"
+        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-full"
+      >
         Ajouter
       </button>
     </form>
