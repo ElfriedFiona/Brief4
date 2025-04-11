@@ -13,6 +13,7 @@ const Login = () => {
     try {
       const res = await api.post("/login", { email, password });
       localStorage.setItem("token", res.data.token);
+      localStorage.setItem("userId", res.data.user.id); // à utiliser pour les contrôles d'accès
       navigate("/"); // redirige vers le dashboard après connexion
     } catch (err) {
       setError("Email ou mot de passe incorrect.");

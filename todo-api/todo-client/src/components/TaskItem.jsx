@@ -8,30 +8,32 @@ import {
   FaSave,
 } from "react-icons/fa";
 import { toast } from "react-hot-toast";
-import { motion } from "framer-motion";
 
-const TaskItem = ({ task, onTaskUpdated }) => {
-  const [editing, setEditing] = useState(false);
+const TaskItem = ({ task, onTaskUpdated, currentUserId, readonly = false, showUser = false }) => {
+  const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(task.title);
   const [newDescription, setNewDescription] = useState(task.description || "");
 
+  const isOwner = task.user_id === currentUserId;
+  const isReadOnly = readonly || !isOwner;
+
   const toggleComplete = async () => {
     try {
-      await api.patch(`/tasks/${task.id}/toggle`);
-      toast.success(task.completed ? "Tâche marquée comme incomplète" : "Tâche marquée comme terminée");
-      onTaskUpdated();
+      await api.patch(`/tasks/${task.id}/toggle`, { completed: !task.completed });
+      if (!isReadOnly) toast.success("Tâche mise à jour !");
+      onTaskUpdated?.();
     } catch {
-      toast.error("Échec lors du changement de statut");
+      if (!isReadOnly) toast.error("Erreur lors de la mise à jour.");
     }
   };
 
   const handleDelete = async () => {
     try {
       await api.delete(`/tasks/${task.id}`);
-      toast.success("Tâche supprimée");
-      onTaskUpdated();
+      if (!isReadOnly) toast.success("Tâche supprimée.");
+      onTaskUpdated?.();
     } catch {
-      toast.error("Échec de la suppression");
+      if (!isReadOnly) toast.error("Erreur lors de la suppression.");
     }
   };
 
@@ -41,77 +43,97 @@ const TaskItem = ({ task, onTaskUpdated }) => {
         title: newTitle,
         description: newDescription,
       });
-      toast.success("Tâche mise à jour");
-      setEditing(false);
-      onTaskUpdated();
+      if (!isReadOnly) toast.success("Tâche mise à jour !");
+      setIsEditing(false);
+      onTaskUpdated?.();
     } catch {
-      toast.error("Échec de la mise à jour");
+      if (!isReadOnly) toast.error("Erreur lors de la mise à jour.");
     }
   };
 
   return (
-    <motion.li
-      className="bg-white p-4 rounded shadow mb-2 max-w-xl mx-auto"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, x: -100 }}
-      transition={{ duration: 0.3 }}
-    >
-      {editing ? (
-        <div className="flex flex-col gap-2">
-          <input
-            className="border p-1 rounded"
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
-            placeholder="Titre"
-          />
-          <textarea
-            className="border p-1 rounded"
-            value={newDescription}
-            onChange={(e) => setNewDescription(e.target.value)}
-            placeholder="Description"
-          />
-        </div>
-      ) : (
-        <div className="flex items-start gap-3">
+    <tr className="hover:bg-gray-50 transition duration-150">
+      <td className="px-6 py-4 text-center">
+        {isOwner ? (
           <button onClick={toggleComplete} title="Changer le statut">
             {task.completed ? (
-              <FaCheckSquare className="text-green-600 text-xl" />
+              <FaCheckSquare className="text-green-600 text-lg" />
             ) : (
-              <FaRegSquare className="text-gray-400 text-xl" />
+              <FaRegSquare className="text-gray-400 text-lg" />
             )}
-          </button>
-
-          <div>
-            <h3
-              className={`text-lg font-semibold ${
-                task.completed ? "line-through text-gray-400" : ""
-              }`}
-            >
-              {task.title}
-            </h3>
-            {task.description && (
-              <p className="text-sm text-gray-600">{task.description}</p>
-            )}
-          </div>
-        </div>
-      )}
-
-      <div className="flex items-center justify-end mt-2 gap-3">
-        {editing ? (
-          <button className="text-blue-600" onClick={handleUpdate} title="Sauvegarder">
-            <FaSave />
           </button>
         ) : (
-          <button className="text-yellow-600" onClick={() => setEditing(true)} title="Modifier">
-            <FaEdit />
-          </button>
+          task.completed ? (
+            <FaCheckSquare className="text-green-400 text-lg" />
+          ) : (
+            <FaRegSquare className="text-gray-300 text-lg" />
+          )
         )}
-        <button className="text-red-600" onClick={handleDelete} title="Supprimer">
-          <FaTrash />
-        </button>
-      </div>
-    </motion.li>
+      </td>
+
+      <td className="px-6 py-4">
+        {isEditing ? (
+          <input
+            className="border p-1 rounded w-full"
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+          />
+        ) : (
+          <span className={`font-medium ${task.completed ? "line-through text-gray-400" : ""}`}>
+            {task.title}
+          </span>
+        )}
+      </td>
+
+      <td className="px-6 py-4 text-gray-600">
+        {isEditing ? (
+          <textarea
+            className="border p-1 rounded w-full"
+            value={newDescription}
+            onChange={(e) => setNewDescription(e.target.value)}
+          />
+        ) : (
+          <span>{task.description}</span>
+        )}
+      </td>
+
+      {showUser && (
+        <td className="px-6 py-4">
+          <span className="text-gray-500 italic text-sm">
+            {task.user?.name}
+          </span>
+        </td>
+      )}
+
+      {!isReadOnly && (
+        <td className="px-6 py-4 text-right">
+          {isEditing ? (
+            <button
+              onClick={handleUpdate}
+              title="Sauvegarder"
+              className="text-blue-600 mr-3 hover:scale-110 transition"
+            >
+              <FaSave />
+            </button>
+          ) : (
+            <button
+              onClick={() => setIsEditing(true)}
+              title="Modifier"
+              className="text-yellow-600 mr-3 hover:scale-110 transition"
+            >
+              <FaEdit />
+            </button>
+          )}
+          <button
+            onClick={handleDelete}
+            title="Supprimer"
+            className="text-red-600 hover:scale-110 transition"
+          >
+            <FaTrash />
+          </button>
+        </td>
+      )}
+    </tr>
   );
 };
 

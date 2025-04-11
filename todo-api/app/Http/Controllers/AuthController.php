@@ -52,4 +52,11 @@ class AuthController extends Controller
     {
         return response()->json($request->user());
     }
+
+    public function allUsers()
+{
+    $users = User::select('id', 'name')->get(); // On ne renvoie que l'essentiel
+    return response()->json($users);
+}
+
 }

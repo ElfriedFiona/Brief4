@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use Illuminate\Http\Request;
+use App\Models\User;
 
 class TaskController extends Controller
 {
@@ -81,4 +82,29 @@ class TaskController extends Controller
         $task->save();
         return response()->json($task);
     }
+
+//     public function collaborative()
+// {
+//     $tasks = Task::with('user:id,name')->where('user_id', '!=', auth()->id())->get();
+//     return response()->json($tasks);
+// }
+public function all()
+{
+    $tasks = Task::with('user:id,name')->latest()->get();
+    return response()->json($tasks);
+}
+
+
+public function tasksByUser($id)
+{
+    $user = \App\Models\User::findOrFail($id);
+    $tasks = $user->tasks()->get();
+
+    return response()->json([
+        'user' => $user->name,
+        'tasks' => $tasks
+    ]);
+}
+
+
 }
