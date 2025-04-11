@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { toast } from "react-hot-toast";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -11,10 +12,32 @@ const Register = () => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+
+    // Validation basique du formulaire
+  if (!email || !password || !name) {
+    setError("Tous les champs doivent être remplis.");
+    return;
+  }
+
+  // Validation de l'email (simple exemple de regex)
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailPattern.test(email)) {
+    setError("Email invalide.");
+    return;
+  }
+
+  // Validation du mot de passe (au moins 6 caractères, pour l'exemple)
+  if (password.length < 6) {
+    setError("Le mot de passe doit contenir au moins 6 caractères.");
+    return;
+  }
+
     try {
-      const res = await api.post("/register", { name, email, password });
-      localStorage.setItem("token", res.data.token);
-      navigate("/"); // redirige vers le dashboard après inscription
+      // Envoie des données d'inscription sans gérer le token à ce stade
+      await api.post("/register", { name, email, password });
+      // Affichage d'un toast de succès
+      toast.success("Inscription réussie ! Vous pouvez maintenant vous connecter.");
+      navigate("/login"); // Redirige vers la page de connexion après inscription
     } catch (err) {
       setError("Erreur lors de l'inscription. Vérifiez vos informations.");
     }

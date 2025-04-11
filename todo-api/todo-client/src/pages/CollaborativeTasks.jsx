@@ -8,7 +8,6 @@ const CollaborativeTasks = () => {
   const [tasks, setTasks] = useState([]);
   const [selectedUserName, setSelectedUserName] = useState("");
 
-  // Récupérer les utilisateurs
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -21,7 +20,6 @@ const CollaborativeTasks = () => {
     fetchUsers();
   }, []);
 
-  // Récupérer toutes les tâches
   const fetchAllTasks = async () => {
     try {
       const res = await api.get("/tasks/all");
@@ -31,15 +29,9 @@ const CollaborativeTasks = () => {
     }
   };
 
-  // Effectuer un rafraîchissement automatique des tâches toutes les 5 secondes
   useEffect(() => {
-    fetchAllTasks(); // Initial fetch
-
-    const intervalId = setInterval(() => {
-      fetchAllTasks(); // Rafraîchissement des tâches toutes les 5 secondes
-    }, 1000);
-
-    // Nettoyer l'intervalle lorsque le composant est démonté
+    fetchAllTasks();
+    const intervalId = setInterval(fetchAllTasks, 1000);
     return () => clearInterval(intervalId);
   }, []);
 
@@ -57,12 +49,14 @@ const CollaborativeTasks = () => {
     : tasks;
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h2 className="text-2xl font-bold mb-4 text-center">Tâches collaboratives</h2>
+    <div className="p-4 sm:p-6 bg-gray-100 min-h-screen">
+      <h2 className="text-2xl font-bold mb-4 text-center text-blue-700">
+        Tâches collaboratives
+      </h2>
 
-      <div className="flex gap-6">
-        {/* Liste des utilisateurs */}
-        <div className="w-1/4 bg-white rounded shadow p-4">
+      <div className="flex flex-col md:flex-row gap-4">
+        {/* Utilisateurs */}
+        <div className="w-full md:w-1/4 bg-white rounded shadow p-4">
           <h3 className="font-semibold mb-2">Utilisateurs</h3>
           <ul>
             <li
@@ -87,16 +81,18 @@ const CollaborativeTasks = () => {
           </ul>
         </div>
 
-        {/* Liste des tâches */}
-        <div className="flex-1">
+        {/* Tâches */}
+        <div className="w-full md:flex-1">
           <h3 className="font-semibold mb-2 text-blue-700">
             {selectedUserId ? `Tâches de ${selectedUserName}` : "Toutes les tâches"}
           </h3>
-          <TaskList
-            tasks={filteredTasks}
-            readonly={true}
-            showUser={true}
-          />
+          <div className="overflow-x-auto">
+            <TaskList
+              tasks={filteredTasks}
+              readonly={true}
+              showUser={true}
+            />
+          </div>
         </div>
       </div>
     </div>

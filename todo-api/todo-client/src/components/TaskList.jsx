@@ -21,15 +21,18 @@ const TaskList = ({ tasks, onTaskUpdated, readonly = false, showUser = false }) 
   return (
     <div className="overflow-x-auto rounded-xl shadow">
       <table className="min-w-full bg-white text-sm text-left">
-        <thead>
-          <tr className="bg-blue-100 text-black text-sm uppercase">
-            <th className="px-6 py-4">Statut</th>
-            <th className="px-6 py-4">Titre</th>
-            <th className="px-6 py-4">Description</th>
-            {showUser && <th className="px-6 py-4">Utilisateur</th>}
-            {!readonly && <th className="px-6 py-4 text-right">Actions</th>}
-          </tr>
-        </thead>
+      <thead>
+  <tr className="bg-blue-100 text-black text-sm uppercase">
+    <th className="px-6 py-4">Statut</th>
+    <th className="px-6 py-4">Titre</th>
+    <th className="px-6 py-4">Description</th>
+    {showUser && <th className="px-6 py-4">Utilisateur</th>}
+    <th className="px-6 py-4">Date de Création</th>
+    <th className="px-6 py-4">Date de modification</th>
+    {!readonly && <th className="px-6 py-4 text-right">Actions</th>}
+  </tr>
+</thead>
+
         <tbody>
           {tasks.map((task) => (
             <TaskItem

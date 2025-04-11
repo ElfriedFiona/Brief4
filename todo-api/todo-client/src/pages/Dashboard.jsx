@@ -5,17 +5,15 @@ import TaskForm from "../components/TaskForm";
 import TaskList from "../components/TaskList";
 import CollaborativeTasks from "./CollaborativeTasks";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  FaUser,
-  FaUsers,
-} from "react-icons/fa";
+import { FaUser, FaUsers } from "react-icons/fa";
 
 const Dashboard = () => {
   const [tasks, setTasks] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
-  const [viewMode, setViewMode] = useState("mine"); // "mine" ou "all"
+  const [viewMode, setViewMode] = useState("mine");
+  const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
   const userId = localStorage.getItem("userId");
 
@@ -33,6 +31,26 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchTasks();
+  }, []);
+
+  useEffect(() => {
+    fetchTasks();
+    const intervalId = setInterval(fetchTasks, 1000);
+    return () => clearInterval(intervalId);
+  }, []);
+
+
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const res = await api.get("/user");
+        setCurrentUser(res.data);
+      } catch (err) {
+        console.error("Erreur lors de la récupération de l'utilisateur connecté", err);
+      }
+    };
+
+    fetchCurrentUser();
   }, []);
 
   const handleLogout = () => {
@@ -55,13 +73,17 @@ const Dashboard = () => {
     });
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="p-4 sm:p-6 bg-gray-100 min-h-screen">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-blue-700">Mon Tableau de bord</h1>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-blue-700">Mon Tableau de bord</h1>
+          <h2 className="text-lg font-semibold text-black">
+            Bienvenue {currentUser?.name || "Utilisateur"}
+          </h2>
+        </div>
 
-        <div className="flex items-center gap-4">
-          {/* Onglet Mes Tâches */}
+        <div className="flex flex-wrap gap-2">
           <motion.button
             whileHover={{ scale: 1.05 }}
             className={`relative px-4 py-2 rounded flex items-center gap-2 transition-all duration-300 ${
@@ -81,7 +103,6 @@ const Dashboard = () => {
             )}
           </motion.button>
 
-          {/* Onglet Tâches Collaboratives */}
           <motion.button
             whileHover={{ scale: 1.05 }}
             className={`relative px-4 py-2 rounded flex items-center gap-2 transition-all duration-300 ${
@@ -101,7 +122,6 @@ const Dashboard = () => {
             )}
           </motion.button>
 
-          {/* Déconnexion */}
           <button
             onClick={handleLogout}
             className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
@@ -111,18 +131,18 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Filtres & Recherche */}
+      {/* Filtres */}
       {viewMode === "mine" && (
-        <div className="flex justify-end items-center mb-4 gap-2">
+        <div className="flex flex-col md:flex-row justify-end items-center mb-4 gap-2">
           <input
             type="text"
             placeholder="Rechercher une tâche..."
-            className="p-2 border rounded w-72"
+            className="p-2 border rounded w-full md:w-72"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <select
-            className="p-2 border rounded"
+            className="p-2 border rounded w-full md:w-auto"
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
           >
@@ -132,14 +152,14 @@ const Dashboard = () => {
           </select>
           <button
             onClick={() => setShowForm(!showForm)}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded w-full md:w-auto"
           >
             {showForm ? "Annuler" : "Ajouter"}
           </button>
         </div>
       )}
 
-      {/* Affichage conditionnel des vues */}
+      {/* Affichage des tâches */}
       <AnimatePresence mode="wait">
         {viewMode === "mine" ? (
           <motion.div
@@ -149,31 +169,28 @@ const Dashboard = () => {
             exit={{ opacity: 0, x: 50 }}
             transition={{ duration: 0.3 }}
           >
-            <div className="flex justify-center max-w-6xl mx-auto gap-6">
-              <div className="flex-1">
+            <div className="flex flex-col lg:flex-row justify-center max-w-6xl mx-auto gap-6">
+              <div className="w-full lg:flex-1">
                 <TaskList tasks={filteredTasks} onTaskUpdated={fetchTasks} />
               </div>
 
-              <div className="w-[300px]">
-                <AnimatePresence>
-                  {showForm && (
-                    <motion.div
-                      key="taskForm"
-                      initial={{ opacity: 0, x: 100 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 100 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <TaskForm
-                        onTaskAdded={() => {
-                          fetchTasks();
-                          setShowForm(false);
-                        }}
-                      />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+              {showForm && (
+                <motion.div
+                  key="taskForm"
+                  initial={{ opacity: 0, x: 100 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 100 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full lg:w-[300px]"
+                >
+                  <TaskForm
+                    onTaskAdded={() => {
+                      fetchTasks();
+                      setShowForm(false);
+                    }}
+                  />
+                </motion.div>
+              )}
             </div>
           </motion.div>
         ) : (

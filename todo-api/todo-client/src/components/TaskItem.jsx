@@ -20,7 +20,7 @@ const TaskItem = ({ task, onTaskUpdated, currentUserId, readonly = false, showUs
   const toggleComplete = async () => {
     try {
       await api.patch(`/tasks/${task.id}/toggle`, { completed: !task.completed });
-      if (!isReadOnly) toast.success("Tâche mise à jour !");
+      if (!isReadOnly) toast.success("Statut de la tâche mise à jour !");
       onTaskUpdated?.();
     } catch {
       if (!isReadOnly) toast.error("Erreur lors de la mise à jour.");
@@ -59,14 +59,14 @@ const TaskItem = ({ task, onTaskUpdated, currentUserId, readonly = false, showUs
             {task.completed ? (
               <FaCheckSquare className="text-green-600 text-lg" />
             ) : (
-              <FaRegSquare className="text-gray-400 text-lg" />
+              <FaRegSquare className="text-gray-600 text-lg" />
             )}
           </button>
         ) : (
           task.completed ? (
-            <FaCheckSquare className="text-green-400 text-lg" />
+            <FaCheckSquare className="text-green-600 text-lg" />
           ) : (
-            <FaRegSquare className="text-gray-300 text-lg" />
+            <FaRegSquare className="text-gray-400 text-lg" />
           )
         )}
       </td>
@@ -104,6 +104,16 @@ const TaskItem = ({ task, onTaskUpdated, currentUserId, readonly = false, showUs
           </span>
         </td>
       )}
+
+<td className="px-6 py-4">{new Date(task.created_at).toLocaleString("fr-FR", {
+  dateStyle: "short",
+  timeStyle: "short",
+})}</td>
+<td className="px-6 py-4">{new Date(task.updated_at).toLocaleString("fr-FR", {
+  dateStyle: "short",
+  timeStyle: "short",
+})}</td>
+
 
       {!isReadOnly && (
         <td className="px-6 py-4 text-right">
