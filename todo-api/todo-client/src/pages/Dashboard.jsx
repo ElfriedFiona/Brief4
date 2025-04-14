@@ -31,14 +31,9 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchTasks();
-  }, []);
-
-  useEffect(() => {
-    fetchTasks();
     const intervalId = setInterval(fetchTasks, 1000);
     return () => clearInterval(intervalId);
   }, []);
-
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -169,11 +164,8 @@ const Dashboard = () => {
             exit={{ opacity: 0, x: 50 }}
             transition={{ duration: 0.3 }}
           >
-            <div className="flex flex-col lg:flex-row justify-center max-w-6xl mx-auto gap-6">
-              <div className="w-full lg:flex-1">
-                <TaskList tasks={filteredTasks} onTaskUpdated={fetchTasks} />
-              </div>
-
+            <div className="flex flex-col lg:flex-row-reverse justify-center max-w-6xl mx-auto gap-6">
+              {/* Formulaire en premier sur mobile, à droite sur desktop */}
               {showForm && (
                 <motion.div
                   key="taskForm"
@@ -181,7 +173,7 @@ const Dashboard = () => {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 100 }}
                   transition={{ duration: 0.3 }}
-                  className="w-full lg:w-[300px]"
+                  className="w-full lg:w-[300px] border-t lg:border-t-0 lg:border-l border-gray-300 pt-4 lg:pt-0"
                 >
                   <TaskForm
                     onTaskAdded={() => {
@@ -191,6 +183,10 @@ const Dashboard = () => {
                   />
                 </motion.div>
               )}
+
+              <div className="w-full lg:flex-1">
+                <TaskList tasks={filteredTasks} onTaskUpdated={fetchTasks} />
+              </div>
             </div>
           </motion.div>
         ) : (
