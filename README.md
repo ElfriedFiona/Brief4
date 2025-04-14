@@ -8,9 +8,8 @@ Une application web pour gérer des tâches personnelles et collaboratives. Chaq
 
 ## Technologies utilisées
 
-- **Backend** : Laravel 9.5 + Sanctum  
-- **Frontend** : React.js + Axios + React Router  
-- **UI** : Tailwind CSS + FontAwesome + Framer Motion  
+- **Backend** : Laravel 9.52.20 + Sanctum  
+- **Frontend** : React.js + Tailwind CSS   
 - **Base de données** : MySQL  
 
 ---
@@ -19,7 +18,7 @@ Une application web pour gérer des tâches personnelles et collaboratives. Chaq
 
 ### Prérequis
 
-- PHP >= 8.1  
+- PHP >= 8.0  
 - Composer  
 - Node.js >= 18.x  
 - NPM ou Yarn  
