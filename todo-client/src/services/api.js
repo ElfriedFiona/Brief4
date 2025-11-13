@@ -1,10 +1,9 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:8000/api",
+  baseURL: "https://todo-app-g2av.onrender.com/api", // 🔥 ton backend en ligne
 });
 
-// Ajout du token automatiquement
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
